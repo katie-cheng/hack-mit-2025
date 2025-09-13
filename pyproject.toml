@@ -1,0 +1,12 @@
+[project]
+name = "eventlord"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "vapi-python>=0.1.9",
+]
+
+[tool.uv.workspace]
+members = ["services/*"]
