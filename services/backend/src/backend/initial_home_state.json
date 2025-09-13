@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "home_id": "aura-demo-home-01",
+    "location": "Austin, TX",
+    "owner_name": "Demo User",
+    "timezone": "America/Chicago"
+  },
+  "devices": {
+    "thermostat": {
+      "device_type": "thermostat",
+      "status": "active",
+      "properties": {
+        "temperature_f": 72,
+        "mode": "cool",
+        "target_temperature_f": 72,
+        "humidity_percent": 45,
+        "fan_mode": "auto"
+      },
+      "last_updated": "2025-09-13T20:16:46Z"
+    },
+    "battery": {
+      "device_type": "battery",
+      "status": "active",
+      "properties": {
+        "model": "Tesla Powerwall 2",
+        "soc_percent": 40,
+        "capacity_kwh": 13.5,
+        "power_kw": 0.0,
+        "grid_charging": false,
+        "solar_charging": true,
+        "backup_reserve_percent": 20
+      },
+      "last_updated": "2025-09-13T20:16:46Z"
+    },
+    "solar": {
+      "device_type": "solar",
+      "status": "active",
+      "properties": {
+        "current_production_kw": 4.1,
+        "daily_production_kwh": 28.5,
+        "system_size_kw": 8.0,
+        "efficiency_percent": 85,
+        "panel_count": 20
+      },
+      "last_updated": "2025-09-13T20:16:46Z"
+    },
+    "grid": {
+      "device_type": "grid",
+      "status": "connected",
+      "properties": {
+        "connection_status": "connected",
+        "current_draw_kw": 2.3,
+        "daily_consumption_kwh": 35.2,
+        "peak_demand_kw": 6.8,
+        "time_of_use_rate": "off_peak"
+      },
+      "last_updated": "2025-09-13T20:16:46Z"
+    }
+  },
+  "financials": {
+    "profit_today_usd": 0.0,
+    "energy_cost_savings_usd": 12.45,
+    "total_energy_sold_kwh": 0.0,
+    "total_energy_purchased_kwh": 35.2
+  },
+  "last_updated": "2025-09-13T20:16:46Z"
+}
