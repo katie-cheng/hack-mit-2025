@@ -1,0 +1,11 @@
+{
+  "balancing_authority": "ERCOT",
+  "timestamp_utc": "2025-01-31T14:00:00Z",
+  "frequency_hz": 60.02,
+  "current_demand_mw": 45000,
+  "status": "Normal operation. Adequate reserves available.",
+  "reserve_margin_mw": 8500,
+  "peak_demand_forecast_mw": 48000,
+  "energy_price_usd_per_mwh": 32.75,
+  "grid_stability": "stable"
+}

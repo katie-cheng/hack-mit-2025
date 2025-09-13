@@ -1,0 +1,11 @@
+{
+  "location": "Austin, TX",
+  "temperature_f": 110.0,
+  "condition": "Clear",
+  "nws_alert": "EXCESSIVE HEAT WARNING: Dangerously hot conditions with heat index values up to 120°F. Heat stroke imminent with any outdoor activity.",
+  "humidity_percent": 80.0,
+  "wind_speed_mph": 2.0,
+  "heat_index_f": 120.0,
+  "uv_index": 12,
+  "air_quality_index": 95
+}

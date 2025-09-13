@@ -1,0 +1,11 @@
+{
+  "balancing_authority": "ERCOT",
+  "timestamp_utc": "2025-01-31T20:00:00Z",
+  "frequency_hz": 59.78,
+  "current_demand_mw": 82500,
+  "status": "CONSERVATION ALERT: Physical Responsive Capability (PRC) is below 1500 MW. Emergency conservation measures may be required. Grid frequency below normal range.",
+  "reserve_margin_mw": 1200,
+  "peak_demand_forecast_mw": 85000,
+  "energy_price_usd_per_mwh": 95.50,
+  "grid_stability": "stressed"
+}

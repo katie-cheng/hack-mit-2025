@@ -1,0 +1,11 @@
+{
+  "location": "Austin, TX",
+  "temperature_f": 78.5,
+  "condition": "Partly Cloudy",
+  "nws_alert": null,
+  "humidity_percent": 45.0,
+  "wind_speed_mph": 12.3,
+  "heat_index_f": 80.0,
+  "uv_index": 6,
+  "air_quality_index": 35
+}

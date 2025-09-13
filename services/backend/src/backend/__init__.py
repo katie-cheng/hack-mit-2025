@@ -15,6 +15,10 @@ from .models import (
 )
 from .voice_alerts import AURAVoiceService
 from .smart_home_simulator import SmartHomeSimulator
+# FastAPI routers for AURA APIs
+from .home_state_api import router as home_state_router
+from .threat_assessment_api import router as threat_assessment_router
+from .integration_api import router as integration_router
 
 # Load environment variables from multiple locations
 load_dotenv()  # Load from backend/.env
@@ -47,17 +51,28 @@ home_status: HomeStatus = HomeStatus(
 # Initialize services
 voice_service: Optional[AURAVoiceService] = None
 simulator: Optional[SmartHomeSimulator] = None
+agent_orchestrator = None
 
 
 @app.on_event("startup")
 async def startup_event():
-    global voice_service, simulator
+    global voice_service, simulator, agent_orchestrator
     try:
         voice_service = AURAVoiceService()
         simulator = SmartHomeSimulator(home_status_ref=home_status)
+        
+        # Initialize agent orchestrator
+        from .agent_orchestrator import orchestrator
+        agent_orchestrator = orchestrator
+        await agent_orchestrator.initialize()
+        
         print("✅ AURA services initialized successfully")
+        print("✅ AURA Agent Orchestrator initialized with 4-agent system")
     except ValueError as e:
         print(f"❌ Service initialization failed: {e}")
+    except Exception as e:
+        print(f"❌ Agent orchestrator initialization failed: {e}")
+        # Continue without agents if they fail to initialize
 
 
 @app.get("/")
@@ -242,3 +257,8 @@ async def reset_simulation():
     registered_homeowners.clear()
     
     return {"success": True, "message": "Simulation reset successfully - all data cleared"}
+
+# Include AURA API routers
+app.include_router(home_state_router)
+app.include_router(threat_assessment_router)
+app.include_router(integration_router)

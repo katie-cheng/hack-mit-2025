@@ -1,0 +1,12 @@
+{
+  "location": "Austin, TX",
+  "temperature_f": 88.0,
+  "condition": "Thunderstorms",
+  "nws_alert": "SEVERE THUNDERSTORM WARNING until 6 PM CDT. Damaging winds up to 70 mph and quarter size hail possible. Power outages likely.",
+  "humidity_percent": 85.0,
+  "wind_speed_mph": 45.0,
+  "heat_index_f": 95.0,
+  "uv_index": 3,
+  "air_quality_index": 25,
+  "precipitation_probability": 90
+}

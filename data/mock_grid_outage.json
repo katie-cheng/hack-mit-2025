@@ -1,0 +1,12 @@
+{
+  "balancing_authority": "ERCOT",
+  "timestamp_utc": "2025-01-31T18:30:00Z",
+  "frequency_hz": 0.0,
+  "current_demand_mw": 0,
+  "status": "GRID OUTAGE: Multiple transmission lines down due to severe weather. Estimated restoration time: 4-6 hours.",
+  "reserve_margin_mw": 0,
+  "peak_demand_forecast_mw": 0,
+  "energy_price_usd_per_mwh": 0.0,
+  "grid_stability": "outage",
+  "outage_customers": 125000
+}
