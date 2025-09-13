@@ -1,0 +1,81 @@
+# AURA Smart Home Management Agent Configuration for FetchAI AgentVerse
+
+agent:
+  name: "AURA"
+  description: "Smart Home Management Agent that provides weather-based home preparation and voice call notifications"
+  version: "1.0.0"
+  type: "smart_home_manager"
+  
+  # Agent capabilities
+  capabilities:
+    - "voice_calls"
+    - "smart_home_control"
+    - "weather_monitoring"
+    - "energy_management"
+    - "homeowner_registration"
+  
+  # Agent behavior
+  behavior:
+    proactive: true
+    autonomous: true
+    collaborative: true
+    
+  # Communication settings
+  communication:
+    protocols: ["http", "websocket", "voice"]
+    languages: ["en"]
+    response_time: "fast"
+    
+  # Smart home integration
+  smart_home:
+    devices:
+      - "thermostat"
+      - "battery_system"
+      - "solar_panels"
+      - "ac_system"
+      - "energy_market"
+    
+    monitoring:
+      - "temperature"
+      - "battery_level"
+      - "energy_consumption"
+      - "market_prices"
+    
+  # Voice call settings
+  voice:
+    provider: "vapi"
+    language: "en-US"
+    voice_type: "professional"
+    call_types:
+      - "warning"
+      - "resolution"
+      - "status_update"
+    
+  # Weather monitoring
+  weather:
+    event_types:
+      - "heatwave"
+      - "cold_snap"
+      - "storm"
+      - "high_wind"
+    
+    thresholds:
+      heatwave_probability: 0.8
+      temperature_threshold: 85
+      response_time_minutes: 30
+      
+  # Energy management
+  energy:
+    market_participation: true
+    profit_optimization: true
+    battery_management: true
+    solar_integration: true
+    
+  # Homeowner management
+  homeowners:
+    max_registered: 100
+    verification_required: false
+    notification_preferences:
+      - "voice_calls"
+      - "text_messages"
+      - "email_alerts"

@@ -1,0 +1,92 @@
+# FetchAI AgentVerse Configuration for AURA Agent
+
+agentverse:
+  # AgentVerse platform settings
+  platform:
+    name: "FetchAI AgentVerse"
+    version: "0.2.0"
+    environment: "production"
+    
+  # Agent deployment settings
+  deployment:
+    agent_id: "${AGENTVERSE_AGENT_ID}"
+    agent_name: "AURA"
+    agent_type: "smart_home_manager"
+    deployment_mode: "standalone"
+    
+  # Network settings
+  network:
+    protocol: "http"
+    port: 8000
+    host: "0.0.0.0"
+    cors_enabled: true
+    
+  # Agent communication
+  communication:
+    message_format: "json"
+    timeout: 30
+    retry_attempts: 3
+    heartbeat_interval: 60
+    
+  # Agent capabilities
+  capabilities:
+    - name: "voice_calls"
+      description: "Make voice calls via VAPI"
+      enabled: true
+      
+    - name: "smart_home_control"
+      description: "Control smart home devices"
+      enabled: true
+      
+    - name: "weather_monitoring"
+      description: "Monitor weather events"
+      enabled: true
+      
+    - name: "energy_management"
+      description: "Manage energy consumption and sales"
+      enabled: true
+      
+    - name: "homeowner_registration"
+      description: "Register and manage homeowners"
+      enabled: true
+  
+  # External service integrations
+  integrations:
+    vapi:
+      enabled: true
+      api_key: "${VAPI_API_KEY}"
+      phone_number_id: "${VAPI_PHONE_NUMBER_ID}"
+      
+    twilio:
+      enabled: true
+      account_sid: "${TWILIO_ACCOUNT_SID}"
+      auth_token: "${TWILIO_AUTH_TOKEN}"
+      phone_number: "${TWILIO_PHONE_NUMBER}"
+      
+    xai:
+      enabled: true
+      api_key: "${XAI_API_KEY}"
+      
+  # Logging and monitoring
+  logging:
+    level: "INFO"
+    format: "json"
+    output: "console"
+    
+  monitoring:
+    metrics_enabled: true
+    health_check_enabled: true
+    performance_monitoring: true
+    
+  # Security settings
+  security:
+    authentication_required: false
+    rate_limiting_enabled: true
+    max_requests_per_minute: 100
+    
+  # Agent behavior
+  behavior:
+    autonomous_mode: true
+    proactive_monitoring: true
+    collaborative_agents: true
+    learning_enabled: false
