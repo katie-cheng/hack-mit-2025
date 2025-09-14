@@ -56,6 +56,12 @@ export default function DashboardPage() {
         console.log('🆕 New data equals current?', JSON.stringify(statusData.status) === JSON.stringify(homeStatus));
         setHomeStatus(statusData.status);
         console.log('✅ State updated');
+        
+        // Auto-stop simulating state when simulation completes
+        if (simulating && statusData.status?.market_status === 'success') {
+          console.log('🎉 Simulation completed, stopping simulating state');
+          setSimulating(false);
+        }
       }
 
       if (homeownersResponse.ok) {
@@ -99,8 +105,8 @@ export default function DashboardPage() {
         throw new Error('Simulation failed');
       }
 
-      // Simulation will run for about 30 seconds
-      setTimeout(() => setSimulating(false), 35000);
+      // Simulation will be controlled by webhook timing
+      // Keep simulating state active until user manually resets or simulation completes
     } catch (err) {
       console.error('Simulation error:', err);
       setSimulating(false);
@@ -114,7 +120,26 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
+        // Reset local state immediately
+        setHomeStatus({
+          battery_level: 45.0,
+          thermostat_temp: 72.0,
+          market_status: 'monitoring',
+          energy_sold: 0.0,
+          profit_generated: 0.0,
+          solar_charging: false,
+          ac_running: false,
+          last_updated: new Date().toISOString()
+        });
+        setHomeowners([]);
+        setSimulating(false);
+        
+        // Then fetch fresh data from backend
         fetchDashboardData();
+        
+        console.log('✅ Simulation and users reset successfully');
+      } else {
+        console.error('Reset failed:', response.status);
       }
     } catch (err) {
       console.error('Reset error:', err);
@@ -213,7 +238,7 @@ export default function DashboardPage() {
                 variant="secondary"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Reset
+                Reset All
               </Button>
             </div>
           </div>

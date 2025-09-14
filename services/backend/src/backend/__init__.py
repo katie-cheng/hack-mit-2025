@@ -201,12 +201,13 @@ async def simulate_heatwave(background_tasks: BackgroundTasks):
         call_result = await voice_service.send_warning_call(warning_alert, phone_numbers[0])
         
         # Track this as a warning call that should trigger follow-up
+        global warning_call_ids
         if call_result.get("call_id"):
             warning_call_ids.add(call_result.get("call_id"))
             print(f"📝 Tracked warning call ID: {call_result.get('call_id')}")
         
-        # Start background simulation (this will now be triggered by webhook)
-        background_tasks.add_task(simulator.simulate_heatwave_response)
+        # NOTE: Simulation will now be triggered by webhook after user hangs up
+        # No longer starting simulation immediately
         
         return AlertResponse(
             success=True,
@@ -273,6 +274,7 @@ async def vapi_webhook(request: dict, background_tasks: BackgroundTasks):
             return {"status": "skipped"}
         
         # CRITICAL: Only process warning calls, not resolution calls
+        global warning_call_ids
         if call_id not in warning_call_ids:
             print(f"   ⏭️ Skipping follow-up - call {call_id} is not a tracked warning call")
             return {"status": "not_warning_call"}
@@ -300,7 +302,11 @@ async def vapi_webhook(request: dict, background_tasks: BackgroundTasks):
             
             print(f"   ✅ Queued follow-up call for {customer_number}")
             
-            # Start the follow-up process in background
+            # Start the simulation first (battery charging animation)
+            print(f"🌡️ Starting simulation after user hung up...")
+            background_tasks.add_task(simulator.simulate_heatwave_response)
+            
+            # Start the follow-up process in background (resolution call after 15s)
             background_tasks.add_task(process_follow_up_call, call_id, customer_number)
         
         return {"status": "processed"}
@@ -344,6 +350,7 @@ async def process_follow_up_call(call_id: str, customer_number: str):
                 print(f"   ✅ Resolution call successful: {resolution_call_id}")
                 
                 # Track this as a resolution call that should NOT trigger follow-up
+                global resolution_call_ids
                 if resolution_call_id:
                     resolution_call_ids.add(resolution_call_id)
                     print(f"📝 Tracked resolution call ID: {resolution_call_id}")

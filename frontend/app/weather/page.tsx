@@ -171,7 +171,11 @@ export default function WeatherDashboard() {
 
           {/* Start Demo Button - Centered below threat assessment */}
           <div className="flex justify-center mb-8">
-            <Button size="lg" className="px-8 py-4 text-lg flex items-center gap-3">
+            <Button 
+              size="lg" 
+              className="px-8 py-4 text-lg flex items-center gap-3"
+              onClick={() => window.location.href = '/dashboard'}
+            >
               <Play className="h-5 w-5" />
               Start Demo
             </Button>

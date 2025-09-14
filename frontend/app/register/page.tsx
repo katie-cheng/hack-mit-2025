@@ -131,25 +131,34 @@ export default function RegisterPage() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              variant="primary"
-              onClick={() => window.location.href = '/dashboard'}
-              className="flex-1"
-              glow
-            >
-              View Dashboard
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                variant="primary"
+                onClick={() => window.location.href = '/dashboard'}
+                className="flex-1"
+                glow
+              >
+                View Dashboard
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setSuccess(false);
+                  setSuccessData(null);
+                  setFormData({ name: '', phoneNumber: '' });
+                }}
+                className="flex-1"
+              >
+                Register Another
+              </Button>
+            </div>
             <Button
               variant="secondary"
-              onClick={() => {
-                setSuccess(false);
-                setSuccessData(null);
-                setFormData({ name: '', phoneNumber: '' });
-              }}
-              className="flex-1"
+              onClick={() => window.location.href = '/weather'}
+              className="w-full"
             >
-              Register Another
+              Go to Threat Assessment
             </Button>
           </div>
         </Card>
