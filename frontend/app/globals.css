@@ -68,21 +68,6 @@
     animation: grainDrift2 21s infinite linear;
   }
 
-  /* Cursor grain particles */
-  .cursor-grain-particle {
-    position: fixed;
-    width: 2px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 4;
-    transition: opacity 0.2s ease;
-  }
-
-  .cursor-grain-particle.fade-out {
-    opacity: 0;
-  }
 
 
   @keyframes grainDrift1 {

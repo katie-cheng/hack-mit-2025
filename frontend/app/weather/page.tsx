@@ -157,7 +157,7 @@ export default function WeatherDashboard() {
           </p>
           
           {/* Threat Level Indicator */}
-          <div className="inline-flex items-center gap-3 mb-6">
+          <div className="inline-flex items-center gap-3 mb-8">
             <AlertTriangle className={`h-6 w-6 ${threatLevel.color}`} />
             <div className="text-left">
               <div className={`text-xl font-bold ${threatLevel.color}`}>
@@ -169,10 +169,13 @@ export default function WeatherDashboard() {
             </div>
           </div>
 
-          <Button size="lg" className="mb-8">
-            <Play className="h-4 w-4 mr-2" />
-            Start Demo
-          </Button>
+          {/* Start Demo Button - Centered below threat assessment */}
+          <div className="flex justify-center mb-8">
+            <Button size="lg" className="px-8 py-4 text-lg flex items-center gap-3">
+              <Play className="h-5 w-5" />
+              Start Demo
+            </Button>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
