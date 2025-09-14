@@ -2,23 +2,27 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { clsx } from 'clsx';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'outlined' | 'elevated';
+  variant?: 'default' | 'elevated' | 'paper';
+  glow?: boolean;
+  shimmer?: boolean;
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', children, ...props }, ref) => {
+  ({ className, variant = 'default', glow, shimmer, children, ...props }, ref) => {
     return (
       <div
         ref={ref}
         className={clsx(
           'card',
           {
-            'bg-white border border-gray-200': variant === 'default',
-            'bg-white border-2 border-gray-300': variant === 'outlined',
-            'bg-white shadow-lg border border-gray-200': variant === 'elevated',
+            'card-elevated': variant === 'elevated',
+            'card-paper': variant === 'paper',
+            'silver-glow': glow,
+            'shimmer': shimmer,
           },
           className
         )}
+        data-content="card"
         {...props}
       >
         {children}
