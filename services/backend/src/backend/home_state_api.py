@@ -5,7 +5,9 @@ from datetime import datetime
 
 from .home_state_agent import HomeStateAgent
 from .home_state_models import (
-    HomeStateRequest, HomeStateResult, Action, DeviceType, ActionType,
+    HomeStateRequest, HomeStateResult, Action, DeviceType, ActionType
+)
+from .home_state_agent import (
     create_thermostat_action, create_battery_action, create_energy_sale_action
 )
 

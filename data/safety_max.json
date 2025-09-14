@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "location": "Austin, TX",
+    "behavioral_profile": "resilience_first"
+  },
+  "devices": {
+    "thermostat": {
+      "temperature_f": 75,
+      "mode": "cool"
+    },
+    "battery": {
+      "model": "Generac PWRcell",
+      "soc_percent": 15,
+      "capacity_kwh": 9.0
+    },
+    "critical_loads": [
+      {
+        "name": "Oxygen Concentrator",
+        "power_draw_w": 350
+      }
+    ]
+  }
+}
