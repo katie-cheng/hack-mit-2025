@@ -1,6 +1,6 @@
 import { InputHTMLAttributes, forwardRef, useState } from 'react';
 import { clsx } from 'clsx';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Zap } from 'lucide-react';
 
 interface FileUploadProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
@@ -66,12 +66,12 @@ const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
         
         <div
           className={clsx(
-            'relative border-2 border-dashed rounded-lg p-6 transition-colors',
+            'relative border-2 border-dashed rounded-sm p-6 transition-colors bg-mercury-700',
             {
-              'border-primary-300 bg-primary-50': dragActive,
-              'border-gray-300 hover:border-gray-400': !dragActive && !selectedFile,
-              'border-danger-300 bg-danger-50': error,
-              'border-success-300 bg-success-50': selectedFile && !error,
+              'border-mercury-500': dragActive,
+              'border-silver-400 hover:border-silver-300': !dragActive && !selectedFile,
+              'border-status-danger': error,
+              'border-status-success': selectedFile && !error,
             }
           )}
           onDragEnter={handleDrag}
@@ -92,33 +92,33 @@ const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           {selectedFile ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Upload className="h-5 w-5 text-success-600 mr-2" />
-                <span className="text-sm font-medium text-gray-900">
+                <Zap className="h-5 w-5 text-status-success mr-2" />
+                <span className="text-sm font-medium text-text-primary">
                   {selectedFile.name}
                 </span>
-                <span className="text-sm text-gray-500 ml-2">
+                <span className="text-sm text-text-muted ml-2">
                   ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                 </span>
               </div>
               <button
                 type="button"
                 onClick={removeFile}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-text-muted hover:text-text-secondary"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
           ) : (
             <div className="text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <Upload className="mx-auto h-12 w-12 text-text-muted" />
               <div className="mt-4">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium text-primary-600 hover:text-primary-500 cursor-pointer">
+                <p className="text-sm text-text-secondary">
+                  <span className="font-medium text-silver-300 hover:text-silver-200 cursor-pointer">
                     Click to upload
                   </span>{' '}
                   or drag and drop
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-text-muted mt-1">
                   Max file size: {maxSize}MB
                 </p>
               </div>
@@ -127,10 +127,10 @@ const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
         </div>
         
         {error && (
-          <p className="mt-1 text-sm text-danger-600">{error}</p>
+          <p className="error-text">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+          <p className="helper-text">{helperText}</p>
         )}
       </div>
     );

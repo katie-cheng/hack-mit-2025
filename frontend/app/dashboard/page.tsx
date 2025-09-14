@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BarChart3, Thermometer, Battery, DollarSign, Play, RotateCcw, Sparkles, Zap } from 'lucide-react';
+import { BarChart3, Thermometer, Battery, DollarSign, Play, RotateCcw, Zap, Users } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
@@ -65,30 +65,23 @@ export default function DashboardPage() {
 
   const simulateHeatwave = async () => {
     setSimulating(true);
-    setError(null);
     try {
       const response = await fetch('/api/simulate-heatwave', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({})
       });
 
-      const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to simulate heatwave');
+        throw new Error('Simulation failed');
       }
 
-      console.log('Heatwave simulation initiated:', result);
-      
-      // Keep simulating state active for the duration of the simulation
-      // The simulation typically takes 10-15 seconds
-      setTimeout(() => {
-        setSimulating(false);
-      }, 15000);
-      
+      // Simulation will run for about 30 seconds
+      setTimeout(() => setSimulating(false), 35000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to simulate heatwave');
+      console.error('Simulation error:', err);
       setSimulating(false);
     }
   };
@@ -96,251 +89,248 @@ export default function DashboardPage() {
   const resetSimulation = async () => {
     try {
       const response = await fetch('/api/simulation/reset', {
-        method: 'POST',
+        method: 'POST'
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to reset simulation');
+      if (response.ok) {
+        fetchDashboardData();
       }
-
-      // Refresh data
-      await fetchDashboardData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reset simulation');
+      console.error('Reset error:', err);
     }
+  };
+
+  const getBatteryStatusColor = (level: number) => {
+    if (level >= 80) return 'text-status-success';
+    if (level >= 50) return 'text-status-warning';
+    return 'text-status-danger';
   };
 
   const getMarketStatusColor = (status: string) => {
     switch (status) {
-      case 'monitoring': return 'text-blue-600';
-      case 'executing_sale': return 'text-yellow-600';
-      case 'success': return 'text-green-600';
-      default: return 'text-gray-600';
+      case 'success': return 'text-status-success';
+      case 'executing_sale': return 'text-status-warning';
+      case 'monitoring': return 'text-status-info';
+      default: return 'text-text-muted';
     }
   };
 
   const getMarketStatusText = (status: string) => {
     switch (status) {
-      case 'monitoring': return 'Monitoring';
+      case 'success': return 'Sale Complete';
       case 'executing_sale': return 'Executing Sale';
-      case 'success': return 'SUCCESS';
+      case 'monitoring': return 'Monitoring';
       default: return 'Idle';
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading AURA Dashboard...</p>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading-mercury mb-4 mx-auto"></div>
+          <p className="text-body text-text-secondary">Loading Mercury dashboard...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden py-8">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen p-4" data-content="main">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="relative inline-block">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 floating">
-              AURA EOC Dashboard
-            </h1>
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-lg blur opacity-30"></div>
-          </div>
-          <p className="text-xl text-white/90">
-            Emergency Operations Center - Smart Home Management
-          </p>
-          
-          {/* Simulation Status */}
-          {simulating && (
-            <div className="mt-4 inline-flex items-center px-4 py-2 bg-yellow-500/20 border border-yellow-400/30 rounded-full">
-              <Sparkles className="h-4 w-4 text-yellow-400 animate-spin mr-2" />
-              <span className="text-yellow-200 font-medium">Heatwave Response Active</span>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center mb-2">
+              <Zap className="h-8 w-8 text-silver-200 mr-3 silver-glow" />
+              <h1 className="text-4xl font-bold text-display text-text-primary">
+                Mercury EOC Dashboard
+              </h1>
             </div>
-          )}
+            <p className="text-body text-text-secondary">
+              Intelligent Energy Operations Center
+            </p>
+          </div>
         </div>
 
-        {/* Error Display */}
         {error && (
-          <Card className="mb-6 border-red-200 bg-red-50">
-            <div className="p-4 text-center text-red-600">
-              <p className="font-medium">Error: {error}</p>
+          <Card variant="elevated" className="mb-6 border-status-danger">
+            <div className="flex items-center">
+              <Zap className="h-5 w-5 text-status-danger mr-3" />
+              <p className="text-body text-status-danger">{error}</p>
             </div>
           </Card>
         )}
 
-        {/* Control Panel */}
-        <Card className="mb-8 rainbow-border">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <BarChart3 className="h-6 w-6 mr-2 text-purple-600" />
-              Control Panel
-            </h2>
-            <div className="flex flex-wrap gap-4">
+        {/* Simulation Controls */}
+        <Card variant="paper" className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-heading text-text-primary mb-2">
+                Simulation Control Panel
+              </h2>
+              <p className="text-body text-text-secondary">
+                {simulating 
+                  ? 'Heatwave simulation in progress - voice calls active' 
+                  : 'Ready to simulate emergency heatwave response'}
+              </p>
+            </div>
+            <div className="flex gap-3">
               <Button
                 onClick={simulateHeatwave}
-                disabled={simulating || homeowners.length === 0}
+                disabled={simulating}
+                loading={simulating}
                 variant="primary"
-                size="lg"
-                className="pulse-glow"
+                glow
               >
                 <Play className="h-4 w-4 mr-2" />
                 {simulating ? 'Simulating...' : 'Simulate Heatwave'}
               </Button>
               <Button
                 onClick={resetSimulation}
+                disabled={simulating}
                 variant="secondary"
-                size="lg"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Reset Simulation
+                Reset
               </Button>
             </div>
-            {homeowners.length === 0 && (
-              <p className="text-sm text-gray-500 mt-2">
-                Register a homeowner first to test the simulation
-              </p>
-            )}
           </div>
         </Card>
 
-        {/* Smart Home Status Widgets */}
-        {homeStatus && (
-          <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 ${simulating ? 'animate-pulse' : ''}`}>
-            {/* Battery Widget */}
-            <Card className="rainbow-border">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <Battery className="h-5 w-5 mr-2 text-green-600" />
-                    Battery
-                  </h3>
-                  {homeStatus.solar_charging && (
-                    <Sparkles className="h-4 w-4 text-yellow-400 animate-pulse" />
-                  )}
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">
-                    {homeStatus.battery_level.toFixed(0)}%
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${homeStatus.battery_level}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {homeStatus.solar_charging ? 'Charging' : 'Standby'}
-                  </p>
-                </div>
+        {/* Status Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Battery Status */}
+          <Card variant="elevated" shimmer>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-heading text-text-primary">Battery</h3>
+              <Battery className={`h-6 w-6 ${getBatteryStatusColor(homeStatus?.battery_level || 0)}`} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-body text-text-secondary">Charge Level</span>
+                <span className={`font-semibold ${getBatteryStatusColor(homeStatus?.battery_level || 0)}`}>
+                  {homeStatus?.battery_level || 0}%
+                </span>
               </div>
-            </Card>
+              <div className="w-full bg-mercury-600 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-mercury-500 to-silver-400 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${homeStatus?.battery_level || 0}%` }}
+                />
+              </div>
+              <div className="flex items-center">
+                <div className={`w-2 h-2 rounded-full mr-2 ${homeStatus?.solar_charging ? 'bg-status-success animate-pulse' : 'bg-text-muted'}`} />
+                <span className="text-sm text-text-muted">
+                  {homeStatus?.solar_charging ? 'Solar Charging Active' : 'Solar Standby'}
+                </span>
+              </div>
+            </div>
+          </Card>
 
-            {/* Thermostat Widget */}
-            <Card className="rainbow-border">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <Thermometer className="h-5 w-5 mr-2 text-blue-600" />
-                    Thermostat
-                  </h3>
-                  {homeStatus.ac_running && (
-                    <Zap className="h-4 w-4 text-blue-400 animate-pulse" />
-                  )}
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">
-                    {homeStatus.thermostat_temp.toFixed(0)}°F
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {homeStatus.ac_running ? 'AC Running' : 'Standby'}
-                  </p>
-                </div>
+          {/* Thermostat */}
+          <Card variant="elevated" shimmer>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-heading text-text-primary">Thermostat</h3>
+              <Thermometer className="h-6 w-6 text-status-info" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-body text-text-secondary">Temperature</span>
+                <span className="font-semibold text-text-primary">
+                  {homeStatus?.thermostat_temp || 72}°F
+                </span>
               </div>
-            </Card>
+              <div className="flex items-center">
+                <div className={`w-2 h-2 rounded-full mr-2 ${homeStatus?.ac_running ? 'bg-status-info animate-pulse' : 'bg-text-muted'}`} />
+                <span className="text-sm text-text-muted">
+                  {homeStatus?.ac_running ? 'AC Running' : 'AC Standby'}
+                </span>
+              </div>
+            </div>
+          </Card>
 
-            {/* Market Widget */}
-            <Card className="rainbow-border">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <DollarSign className="h-5 w-5 mr-2 text-orange-600" />
-                    Market
-                  </h3>
-                </div>
-                <div className="text-center">
-                  <div className={`text-lg font-semibold mb-2 ${getMarketStatusColor(homeStatus.market_status)}`}>
-                    {getMarketStatusText(homeStatus.market_status)}
-                  </div>
-                  {homeStatus.market_status === 'success' && (
-                    <div className="text-sm text-gray-600">
-                      <p>Sold: {homeStatus.energy_sold} kWh</p>
-                      <p>Profit: ${homeStatus.profit_generated.toFixed(2)}</p>
-                    </div>
-                  )}
-                </div>
+          {/* Market Status */}
+          <Card variant="elevated" shimmer>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-heading text-text-primary">Market</h3>
+              <DollarSign className={`h-6 w-6 ${getMarketStatusColor(homeStatus?.market_status || 'idle')}`} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-body text-text-secondary">Status</span>
+                <span className={`font-semibold ${getMarketStatusColor(homeStatus?.market_status || 'idle')}`}>
+                  {getMarketStatusText(homeStatus?.market_status || 'idle')}
+                </span>
               </div>
-            </Card>
-          </div>
-        )}
+              {homeStatus?.energy_sold > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-body text-text-secondary">Energy Sold</span>
+                  <span className="font-semibold text-text-primary">
+                    {homeStatus.energy_sold} kWh
+                  </span>
+                </div>
+              )}
+              {homeStatus?.profit_generated > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-body text-text-secondary">Profit</span>
+                  <span className="font-semibold text-status-success">
+                    ${homeStatus.profit_generated.toFixed(2)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
 
         {/* Registered Homeowners */}
-        <Card className="rainbow-border">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <div className="relative">
-                <div className="h-6 w-6 mr-2 text-indigo-600">🏠</div>
-                <Sparkles className="h-4 w-4 text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
-              </div>
-              Registered Homeowners
-            </h2>
-            
-            {homeowners.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-4xl mb-4">🏠</div>
-                <p className="text-xl font-semibold text-gray-600">No Homes Registered</p>
-                <p className="text-gray-500">Register a home to start monitoring and testing</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {homeowners.map((homeowner) => (
-                  <div
-                    key={homeowner.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {homeowner.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">{homeowner.phone_number}</p>
-                        <p className="text-xs text-gray-500">
-                          Registered: {new Date(homeowner.registered_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-mono font-bold text-gray-800 bg-gray-100 px-3 py-1 rounded">
-                          {homeowner.id.slice(0, 8)}
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">ID</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        <Card variant="paper">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-heading text-text-primary mb-2">
+                Registered Homeowners
+              </h2>
+              <p className="text-body text-text-secondary">
+                Connected homes in the Mercury energy network
+              </p>
+            </div>
+            <div className="flex items-center">
+              <Users className="h-5 w-5 text-silver-300 mr-2" />
+              <span className="text-lg font-semibold text-text-primary">{homeowners.length}</span>
+            </div>
           </div>
+          
+          {homeowners.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-text-muted mx-auto mb-4" />
+              <p className="text-body text-text-muted">No homeowners registered yet</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {homeowners.map((homeowner) => (
+                <Card key={homeowner.id} variant="elevated" className="bg-mercury-600">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-text-primary mb-1">{homeowner.name}</h3>
+                      <p className="text-sm text-text-muted mb-2">{homeowner.phone_number}</p>
+                      <p className="text-xs text-text-muted">
+                        ID: {homeowner.id}
+                      </p>
+                    </div>
+                    <div className="w-2 h-2 bg-status-success rounded-full animate-pulse" title="Connected" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </Card>
+
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-body text-text-muted">
+            Last updated: {homeStatus?.last_updated ? new Date(homeStatus.last_updated).toLocaleString() : 'Never'}
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Home, Phone, CheckCircle, Sparkles, Zap, Star } from 'lucide-react';
+import { Home, Phone, CheckCircle, Zap, Star } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -56,104 +56,100 @@ export default function RegisterPage() {
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
+      if (response.ok) {
+        const result = await response.json();
+        setSuccessData(result);
         setSuccess(true);
-        setSuccessData({
-          homeownerId: result.homeowner_id
-        });
-        setFormData({
-          name: '',
-          phoneNumber: '',
-        });
       } else {
-        throw new Error(result.message || 'Registration failed');
+        console.error('Registration failed');
       }
     } catch (error) {
-      console.error('Error registering homeowner:', error);
-      setErrors({ submit: error instanceof Error ? error.message : 'Registration failed. Please try again.' });
+      console.error('Error during registration:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const updateFormData = (field: keyof HomeownerRegistration, value: string) => {
+  const handleInputChange = (field: keyof HomeownerRegistration) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: e.target.value
     }));
     
-    // Clear errors when user starts typing
+    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
-        [field]: '',
-      }));
-    }
-    if (errors.submit) {
-      setErrors(prev => ({
-        ...prev,
-        submit: '',
+        [field]: ''
       }));
     }
   };
 
   if (success && successData) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-green-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <Card className="max-w-md w-full text-center rainbow-border pulse-glow relative z-10">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <CheckCircle className="h-16 w-16 text-green-600" />
-              <Sparkles className="h-8 w-8 text-yellow-400 absolute -top-2 -right-2 animate-bounce" />
+      <div className="min-h-screen flex items-center justify-center p-4" data-content="main">
+        <Card variant="paper" glow className="max-w-md w-full text-center">
+          <div className="mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-4 silver-glow border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px'}}>
+              <CheckCircle className="h-8 w-8 text-status-success" />
             </div>
+            <h2 className="text-2xl font-bold text-display text-text-primary mb-2">
+              Registration Successful!
+            </h2>
+            <p className="text-body text-text-secondary font-light">
+              Welcome to Mercury's intelligent energy management system.
+            </p>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Home Registered Successfully! ✨
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your home is now connected to AURA's smart home management system. 
-            You'll receive intelligent weather alerts and automated protection.
-          </p>
           
-          {/* Registration Confirmation */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-center mb-2">
-              <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
-              <span className="text-sm font-medium text-gray-700">Registration Complete</span>
+          <div className="p-4 mb-6 border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px', boxShadow: '0 0 15px rgba(192, 192, 192, 0.1)'}}>
+            <p className="text-sm text-text-muted mb-1">Your Homeowner ID</p>
+            <p className="text-mono text-lg font-semibold text-text-primary">
+              {successData.homeownerId}
+            </p>
+          </div>
+          
+          <div className="space-y-4 mb-6">
+            <div className="flex items-center text-left">
+              <Zap className="h-5 w-5 text-silver-300 mr-3 flex-shrink-0" />
+              <span className="text-body text-text-secondary">
+                Your home is now connected to Mercury's energy network
+              </span>
             </div>
-            <div className="bg-white rounded border-2 border-dashed border-gray-300 p-4">
-              <div className="text-sm text-gray-600">
-                <p><strong>Homeowner ID:</strong> {successData.homeownerId}</p>
-                <p className="mt-2">You're now ready to receive AURA weather alerts!</p>
-              </div>
+            <div className="flex items-center text-left">
+              <Phone className="h-5 w-5 text-silver-300 mr-3 flex-shrink-0" />
+              <span className="text-body text-text-secondary">
+                You'll receive voice alerts for critical energy events
+              </span>
+            </div>
+            <div className="flex items-center text-left">
+              <Star className="h-5 w-5 text-silver-300 mr-3 flex-shrink-0" />
+              <span className="text-body text-text-secondary">
+                AI-powered optimization is now active for your home
+              </span>
             </div>
           </div>
-
-          <div className="space-y-3">
+          
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
-              onClick={() => setSuccess(false)}
               variant="primary"
-              className="w-full"
+              onClick={() => window.location.href = '/dashboard'}
+              className="flex-1"
+              glow
             >
-              <Star className="h-4 w-4 mr-2" />
-              Register Another Home
+              View Dashboard
             </Button>
             <Button
-              onClick={() => window.location.href = '/dashboard'}
               variant="secondary"
-              className="w-full"
+              onClick={() => {
+                setSuccess(false);
+                setSuccessData(null);
+                setFormData({ name: '', phoneNumber: '' });
+              }}
+              className="flex-1"
             >
-              <Zap className="h-4 w-4 mr-2" />
-              View EOC Dashboard
+              Register Another
             </Button>
           </div>
         </Card>
@@ -162,143 +158,135 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden py-8">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <div className="relative inline-block">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 floating">
-              Register Your Home
-            </h1>
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-lg blur opacity-30"></div>
+    <div className="min-h-screen p-4" data-content="main">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12 pt-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 silver-glow border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px'}}>
+            <Home className="h-8 w-8 text-silver-200" />
           </div>
-          <p className="text-xl text-white/90 mb-4">
-            Connect your home to AURA's intelligent weather protection system
+          <h1 className="text-4xl font-bold text-display text-text-primary mb-4">
+            Register Your Home
+          </h1>
+          <p className="text-lg text-body text-text-secondary font-light max-w-2xl mx-auto">
+            Connect your home to Mercury's intelligent energy management system and unlock the power of automated optimization.
           </p>
         </div>
 
-        <Card className="rainbow-border">
-          <form onSubmit={handleSubmit} className="space-y-6 mx-4 my-4">
-            {/* Error Display */}
-            {errors.submit && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="h-5 w-5 text-red-600">⚠️</div>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-red-800">Registration Error</p>
-                    <p className="text-sm text-red-700 mt-1">{errors.submit}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <div className="relative">
-                  <Home className="h-5 w-5 mr-2 text-blue-600" />
-                  <Sparkles className="h-3 w-3 text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
-                </div>
-                Homeowner Information
-              </h3>
-              
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Registration Form */}
+          <Card variant="elevated">
+            <h2 className="text-2xl font-semibold text-heading text-text-primary mb-6">
+              Homeowner Information
+            </h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
               <Input
-                label="Your Name"
-                placeholder="Enter your full name"
+                label="Full Name"
+                type="text"
                 value={formData.name}
-                onChange={(e) => updateFormData('name', e.target.value)}
+                onChange={handleInputChange('name')}
                 error={errors.name}
+                helperText="Enter your full legal name"
+                placeholder="John Doe"
                 required
               />
 
               <Input
                 label="Phone Number"
-                placeholder="+1 (555) 123-4567"
+                type="tel"
                 value={formData.phoneNumber}
-                onChange={(e) => updateFormData('phoneNumber', e.target.value)}
+                onChange={handleInputChange('phoneNumber')}
                 error={errors.phoneNumber}
+                helperText="We'll use this for voice alerts and notifications"
+                placeholder="+1 (555) 123-4567"
                 required
-                helperText="This is how AURA will contact you for weather alerts"
               />
-            </div>
 
-            {/* Privacy Notice */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <div className="relative">
-                    <div className="h-6 w-6 text-blue-500">🏠</div>
-                    <Sparkles className="h-4 w-4 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
+              <div className="p-4 border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px', boxShadow: '0 0 15px rgba(192, 192, 192, 0.1)'}}>
+                <div className="flex items-start">
+                  <Zap className="h-5 w-5 text-silver-300 mr-3 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="text-text-primary font-medium mb-1">Privacy Notice</p>
+                    <p className="text-text-muted">
+                      Your information is encrypted and used solely for energy management and emergency notifications. 
+                      Mercury never shares your data with third parties.
+                    </p>
                   </div>
                 </div>
-                <div className="ml-3">
-                  <h4 className="text-sm font-medium text-blue-800">
-                    Smart Home Protection ✨
-                  </h4>
-                  <p className="text-sm text-blue-700 mt-1">
-                    AURA will monitor weather conditions and proactively protect your home. 
-                    Your information is secure and will only be used for home protection services.
-                  </p>
-                </div>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
               <Button
                 type="submit"
-                variant="primary"
-                size="lg"
                 loading={loading}
-                disabled={!formData.name.trim() || !formData.phoneNumber.trim()}
-                className="pulse-glow"
+                disabled={loading}
+                className="w-full"
+                glow
               >
-                <Home className="h-4 w-4 mr-2" />
-                <Sparkles className="h-4 w-4 mr-2" />
                 Register Home
               </Button>
-            </div>
-          </form>
-        </Card>
+            </form>
+          </Card>
 
-        {/* Additional Information */}
-        <Card className="mt-6 rainbow-border">
-          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-            <div className="relative">
-              <Zap className="h-5 w-5 mr-2 text-indigo-600" />
-              <Sparkles className="h-3 w-3 text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
-            </div>
-            How AURA Works
-          </h3>
-          <div className="space-y-3 text-sm text-gray-600">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">
-                1
+          {/* How Mercury Works */}
+          <div className="space-y-6">
+            <Card variant="paper">
+              <h3 className="text-xl font-semibold text-heading text-text-primary mb-4">
+                How Mercury Works
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-sm font-semibold text-text-primary mr-4 border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px', boxShadow: '0 0 10px rgba(192, 192, 192, 0.08)'}}>
+                    1
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-text-primary mb-1">Smart Monitoring</h4>
+                    <p className="text-body text-text-secondary">
+                      Mercury continuously monitors grid conditions, weather patterns, and your home's energy usage.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-sm font-semibold text-text-primary mr-4 border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px', boxShadow: '0 0 10px rgba(192, 192, 192, 0.08)'}}>
+                    2
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-text-primary mb-1">Predictive Analysis</h4>
+                    <p className="text-body text-text-secondary">
+                      AI algorithms predict energy events and automatically prepare your home's systems.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-sm font-semibold text-text-primary mr-4 border border-silver-400/40" style={{background: 'transparent', borderRadius: '0px', boxShadow: '0 0 10px rgba(192, 192, 192, 0.08)'}}>
+                    3
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-text-primary mb-1">Voice Notifications</h4>
+                    <p className="text-body text-text-secondary">
+                      Receive timely voice calls about critical events and system optimizations.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p>Register your home with basic contact information.</p>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">
-                2
+            </Card>
+
+            <Card variant="elevated" shimmer>
+              <div className="text-center">
+                <Zap className="h-12 w-12 text-silver-300 mx-auto mb-4" />
+                <h4 className="text-lg font-semibold text-heading text-text-primary mb-2">
+                  Intelligent Energy Management
+                </h4>
+                <p className="text-body text-text-secondary">
+                  Join thousands of homeowners who have reduced their energy costs by up to 30% with Mercury's AI-powered optimization.
+                </p>
               </div>
-              <p>Receive intelligent weather alerts via phone call when events are detected.</p>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">
-                3
-              </div>
-              <p>Get automated home protection including pre-cooling, battery charging, and energy trading.</p>
-            </div>
+            </Card>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
