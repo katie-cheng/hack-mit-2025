@@ -17,7 +17,6 @@ from .home_state_models import (
     DeviceType, ActionType, DeviceState, HomeMetadata, FinancialData
 )
 
-
 class HomeStateTool(BaseTool):
     """Base tool for home state operations"""
     name: str = "home_state_tool"
@@ -26,7 +25,6 @@ class HomeStateTool(BaseTool):
     
     def __init__(self, home_state_agent: 'HomeStateAgent'):
         super().__init__(home_state_agent=home_state_agent)
-
 
 class ThermostatTool(HomeStateTool):
     """Tool for controlling thermostat"""
@@ -49,7 +47,6 @@ class ThermostatTool(HomeStateTool):
             return f"Thermostat updated: {updates}"
         except Exception as e:
             return f"Error updating thermostat: {str(e)}"
-
 
 class BatteryTool(HomeStateTool):
     """Tool for controlling battery/powerwall"""

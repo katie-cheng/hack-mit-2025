@@ -3,7 +3,6 @@ from typing import Dict, List, Literal, Optional, Any
 from datetime import datetime
 from enum import Enum
 
-
 class ActionType(str, Enum):
     """Types of actions that can be performed on home devices"""
     READ = "read"
@@ -11,14 +10,12 @@ class ActionType(str, Enum):
     TOGGLE = "toggle"
     ADJUST = "adjust"
 
-
 class DeviceType(str, Enum):
     """Types of devices in the smart home"""
     THERMOSTAT = "thermostat"
     BATTERY = "battery"
     SOLAR = "solar"
     GRID = "grid"
-
 
 class Action(BaseModel):
     """Individual action to perform on a device"""
