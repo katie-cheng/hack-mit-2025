@@ -27,8 +27,8 @@ class AgentOrchestrator:
         
         # Initialize agents with mock data by default
         mock_config = MockDataConfig(
-            use_mock_weather=True,
-            use_mock_grid=True,
+            use_mock_weather=False,
+            use_mock_grid=False,
             mock_weather_file="mock_weather_data.json",
             mock_grid_file="mock_grid_data.json"
         )
@@ -121,28 +121,41 @@ class AgentOrchestrator:
             ]
         }
     
-    async def process_threat_to_action(self, location: str, include_research: bool = False) -> Dict[str, Any]:
+    async def run_analysis_pipeline(
+        self, 
+        request: ThreatAnalysisRequest, 
+        simulate_heatwave: bool = False
+    ) -> Dict[str, Any]:
         """
-        Complete threat-to-action pipeline:
-        1. Analyze threats for location
-        2. Generate home actions based on threats
-        3. Execute actions on home state
-        4. Return complete results
+        Run the complete threat analysis and home action pipeline.
+        
+        Args:
+            request: The threat analysis request.
+            simulate_heatwave: If True, uses mock data for a heatwave scenario.
+                               If False, uses live data and the Perplexity MCP.
         """
         start_time = time.time()
+        location = request.location
         
         try:
+            # Configure agent based on simulation flag
+            if simulate_heatwave:
+                print("🔥 Simulating heatwave scenario with mock data...")
+                heatwave_config = MockDataConfig(
+                    use_mock_weather=True,
+                    use_mock_grid=True,
+                    mock_weather_file="mock_weather_extreme.json",
+                    mock_grid_file="mock_grid_outage.json"
+                )
+                self.threat_agent.update_mock_config(heatwave_config)
+            else:
+                print("🌐 Using live data and Perplexity MCP...")
+                live_data_config = MockDataConfig(use_mock_weather=False, use_mock_grid=False)
+                self.threat_agent.update_mock_config(live_data_config)
+
             # Step 1: Threat Assessment
             print(f"🔍 Step 1: Analyzing threats for {location}")
-            threat_request = ThreatAnalysisRequest(
-                location=location,
-                include_weather=True,
-                include_grid=True,
-                include_research=include_research,
-                request_id=f"orchestrator_{int(datetime.utcnow().timestamp())}"
-            )
-            
-            threat_result = await self.threat_agent.analyze_threats(threat_request)
+            threat_result = await self.threat_agent.analyze_threats(request)
             
             if not threat_result.success:
                 return {

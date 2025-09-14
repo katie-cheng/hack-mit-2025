@@ -19,6 +19,8 @@ class ThreatType(str, Enum):
     POWER_OUTAGE = "power_outage"
     ENERGY_SHORTAGE = "energy_shortage"
     COMBINED = "combined"
+    WILDFIRE_RISK = "wildfire_risk"
+    AIR_QUALITY = "air_quality"
 
 
 class WeatherData(BaseModel):
