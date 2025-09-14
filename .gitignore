@@ -16,6 +16,7 @@ yarn-error.log*
 out/
 build/
 dist/
+venv/
 
 # Environment variables
 .env.local
