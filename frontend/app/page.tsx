@@ -28,7 +28,7 @@ export default function HomePage() {
           <p className="text-xl md:text-2xl text-text-secondary mb-12 leading-relaxed subtitle-thin">
             Intelligent Home Energy Management
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
               <Button size="lg">
                 Register Your Home
@@ -36,7 +36,12 @@ export default function HomePage() {
             </Link>
             <Link href="/dashboard">
               <Button variant="secondary" size="lg">
-                View Dashboard
+                EOC Dashboard
+              </Button>
+            </Link>
+            <Link href="/weather">
+              <Button variant="secondary" size="lg">
+                Weather Dashboard
               </Button>
             </Link>
           </div>
