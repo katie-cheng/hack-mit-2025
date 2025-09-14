@@ -30,23 +30,32 @@ export default function DashboardPage() {
   const [simulating, setSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchDashboardData();
-    // Set up real-time updates - faster during simulation
-    const interval = setInterval(fetchDashboardData, simulating ? 500 : 2000);
-    return () => clearInterval(interval);
-  }, [simulating]);
-
   const fetchDashboardData = async () => {
     try {
       const [statusResponse, homeownersResponse] = await Promise.all([
-        fetch('/api/home-status'),
-        fetch('/api/homeowners')
+        fetch('/api/home-status', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        }),
+        fetch('/api/homeowners', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        })
       ]);
 
       if (statusResponse.ok) {
         const statusData = await statusResponse.json();
+        console.log('📊 API Response:', statusData.status);
+        console.log('🔄 Current state:', homeStatus);
+        console.log('🆕 New data equals current?', JSON.stringify(statusData.status) === JSON.stringify(homeStatus));
         setHomeStatus(statusData.status);
+        console.log('✅ State updated');
       }
 
       if (homeownersResponse.ok) {
@@ -62,6 +71,18 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Initial data fetch
+    fetchDashboardData();
+    
+    // Set up real-time updates - simple 1 second polling for consistent updates
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array for one-time setup
 
   const simulateHeatwave = async () => {
     setSimulating(true);
@@ -263,19 +284,19 @@ export default function DashboardPage() {
                   {getMarketStatusText(homeStatus?.market_status || 'idle')}
                 </span>
               </div>
-              {homeStatus?.energy_sold > 0 && (
+              {(homeStatus?.energy_sold ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-body text-text-secondary">Energy Sold</span>
                   <span className="font-semibold text-text-primary">
-                    {homeStatus.energy_sold} kWh
+                    {homeStatus?.energy_sold} kWh
                   </span>
                 </div>
               )}
-              {homeStatus?.profit_generated > 0 && (
+              {(homeStatus?.profit_generated ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-body text-text-secondary">Profit</span>
                   <span className="font-semibold text-status-success">
-                    ${homeStatus.profit_generated.toFixed(2)}
+                    ${homeStatus?.profit_generated?.toFixed(2)}
                   </span>
                 </div>
               )}
