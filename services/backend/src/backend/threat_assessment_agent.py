@@ -6,12 +6,12 @@ from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from threat_models import (
+from .threat_models import (
     ThreatAnalysisRequest, ThreatAnalysisResult, ThreatAnalysis, ThreatLevel, 
     ThreatType, ThreatIndicator, WeatherData, GridData, DataSourceStatus, 
     APIError, MockDataConfig
 )
-from api_clients import (
+from .api_clients import (
     OpenWeatherMapClient, EIAClient, PerplexityClient, MockDataClient
 )
 

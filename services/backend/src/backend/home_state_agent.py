@@ -12,7 +12,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from home_state_models import (
+from .home_state_models import (
     HomeStateRequest, HomeStateResult, HomeState, Action, ActionResult,
     DeviceType, ActionType, DeviceState, HomeMetadata, FinancialData
 )

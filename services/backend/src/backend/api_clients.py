@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 from pathlib import Path
 
-from threat_models import (
+from .threat_models import (
     WeatherData, GridData, OpenWeatherMapResponse, EIAResponse, 
     PerplexityResponse, APIError, MockDataConfig
 )
