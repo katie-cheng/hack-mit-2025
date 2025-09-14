@@ -23,7 +23,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           className={clsx(
             'input',
             {
-              'border-danger-300 focus:ring-danger-500': error,
+              'error': error,
             },
             className
           )}
@@ -31,10 +31,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-danger-600">{error}</p>
+          <p className="error-text">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+          <p className="helper-text">{helperText}</p>
         )}
       </div>
     );

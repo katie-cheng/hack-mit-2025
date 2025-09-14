@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "location": "Austin, TX",
+    "behavioral_profile": "balanced"
+  },
+  "devices": {
+    "thermostat": {
+      "temperature_f": 72,
+      "mode": "cool"
+    },
+    "battery": {
+      "model": "Tesla Powerwall 2",
+      "soc_percent": 50,
+      "capacity_kwh": 13.5
+    },
+    "critical_loads": []
+  }
+}
