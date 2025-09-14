@@ -48,6 +48,10 @@ home_status: HomeStatus = HomeStatus(
     last_updated=datetime.utcnow()
 )
 
+# Call tracking to prevent infinite loops
+warning_call_ids: set = set()  # Track warning call IDs that should trigger follow-ups
+resolution_call_ids: set = set()  # Track resolution call IDs that should NOT trigger follow-ups
+
 # Initialize services
 voice_service: Optional[AURAVoiceService] = None
 simulator: Optional[SmartHomeSimulator] = None
@@ -196,12 +200,17 @@ async def simulate_heatwave(background_tasks: BackgroundTasks):
         # Initiate warning call
         call_result = await voice_service.send_warning_call(warning_alert, phone_numbers[0])
         
-        # Start background simulation
+        # Track this as a warning call that should trigger follow-up
+        if call_result.get("call_id"):
+            warning_call_ids.add(call_result.get("call_id"))
+            print(f"📝 Tracked warning call ID: {call_result.get('call_id')}")
+        
+        # Start background simulation (this will now be triggered by webhook)
         background_tasks.add_task(simulator.simulate_heatwave_response)
         
         return AlertResponse(
             success=True,
-            message="Heatwave simulation initiated - warning call sent",
+            message="Heatwave simulation initiated - warning call sent. Resolution call will be triggered after first call ends.",
             call_initiated=True,
             call_id=call_result.get("call_id")
         )
@@ -212,29 +221,142 @@ async def simulate_heatwave(background_tasks: BackgroundTasks):
 @app.post("/simulation/complete")
 async def simulation_complete():
     """
-    Called when simulation is complete to send resolution call
+    Called when simulation is complete - resolution call will be handled by webhook
     """
     try:
-        if not voice_service:
-            raise HTTPException(status_code=500, detail="Voice service not available")
-
-        # Get homeowner phone number
-        phone_numbers = [homeowner.phone_number for homeowner in registered_homeowners.values()]
-        if not phone_numbers:
-            raise HTTPException(status_code=400, detail="No homeowners registered")
-
-        # Send resolution call
-        resolution_result = await voice_service.send_resolution_call(phone_numbers[0], home_status)
+        print("📞 Simulation completed - resolution call will be triggered by webhook when first call ends")
         
         return AlertResponse(
             success=True,
-            message="Resolution call sent successfully",
-            call_initiated=True,
-            call_id=resolution_result.get("call_id")
+            message="Simulation completed - resolution call will be triggered by webhook",
+            call_initiated=False,
+            call_id=None
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send resolution call: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to complete simulation: {str(e)}")
+
+@app.post("/vapi-webhook")
+async def vapi_webhook(request: dict, background_tasks: BackgroundTasks):
+    """
+    Handle Vapi webhook events for call lifecycle management
+    """
+    try:
+        message = request.get("message", {})
+        message_type = message.get("type")
+        
+        print(f"📞 Vapi webhook received: {message_type}")
+        
+        # Only proceed when the first call has ended
+        is_call_ended = (
+            (message_type == "status-update" and message.get("status") == "ended") or
+            message_type == "end-of-call-report"
+        )
+        
+        if not is_call_ended:
+            print(f"   ⏳ Call still active, waiting...")
+            return {"status": "acknowledged"}
+        
+        # Get call details
+        call_info = message.get("call", {})
+        call_id = call_info.get("id")
+        customer_number = call_info.get("customer", {}).get("number")
+        ended_reason = message.get("endedReason")
+        
+        print(f"   📞 Call ended: {call_id}")
+        print(f"   📱 Customer: {customer_number}")
+        print(f"   🔚 Reason: {ended_reason}")
+        
+        # Skip if it's voicemail, no answer, or assistant ended call
+        if ended_reason in ["voicemail", "customer-did-not-answer", "assistant-ended-call"]:
+            print(f"   ⏭️ Skipping follow-up due to reason: {ended_reason}")
+            return {"status": "skipped"}
+        
+        # CRITICAL: Only process warning calls, not resolution calls
+        if call_id not in warning_call_ids:
+            print(f"   ⏭️ Skipping follow-up - call {call_id} is not a tracked warning call")
+            return {"status": "not_warning_call"}
+        
+        # Remove from warning calls since we're processing it
+        warning_call_ids.discard(call_id)
+        
+        # Check if this is a warning call that needs a follow-up
+        if call_id and customer_number:
+            # Store the call info for the follow-up
+            global pending_follow_ups
+            if 'pending_follow_ups' not in globals():
+                pending_follow_ups = {}
+            
+            # Check if this call is already being processed
+            if call_id in pending_follow_ups:
+                print(f"   ⚠️ Call {call_id} already queued for follow-up, skipping")
+                return {"status": "already_queued"}
+            
+            pending_follow_ups[call_id] = {
+                "customer_number": customer_number,
+                "ended_at": datetime.utcnow(),
+                "processed": False
+            }
+            
+            print(f"   ✅ Queued follow-up call for {customer_number}")
+            
+            # Start the follow-up process in background
+            background_tasks.add_task(process_follow_up_call, call_id, customer_number)
+        
+        return {"status": "processed"}
+        
+    except Exception as e:
+        print(f"❌ Webhook error: {str(e)}")
+        return {"status": "error", "message": str(e)}
+
+async def process_follow_up_call(call_id: str, customer_number: str):
+    """
+    Process the follow-up call after delay
+    """
+    try:
+        print(f"🔄 Processing follow-up for call {call_id}")
+        
+        # Wait 15 seconds before making the follow-up call
+        print("⏳ Waiting 15 seconds before follow-up call...")
+        await asyncio.sleep(15)
+        
+        # Check if we still have the call info
+        global pending_follow_ups
+        if 'pending_follow_ups' not in globals() or call_id not in pending_follow_ups:
+            print(f"   ⚠️ Call {call_id} no longer in pending list")
+            return
+        
+        call_info = pending_follow_ups[call_id]
+        if call_info.get("processed", False):
+            print(f"   ⚠️ Call {call_id} already processed")
+            return
+        
+        # Mark as processed
+        pending_follow_ups[call_id]["processed"] = True
+        
+        # Make the resolution call
+        if voice_service:
+            print(f"📞 Making resolution call to {customer_number}")
+            resolution_result = await voice_service.send_resolution_call(customer_number, home_status)
+            
+            if resolution_result.get("success"):
+                resolution_call_id = resolution_result.get('call_id')
+                print(f"   ✅ Resolution call successful: {resolution_call_id}")
+                
+                # Track this as a resolution call that should NOT trigger follow-up
+                if resolution_call_id:
+                    resolution_call_ids.add(resolution_call_id)
+                    print(f"📝 Tracked resolution call ID: {resolution_call_id}")
+            else:
+                print(f"   ❌ Resolution call failed: {resolution_result.get('message')}")
+        else:
+            print("   ❌ Voice service not available")
+        
+        # Clean up
+        del pending_follow_ups[call_id]
+        
+    except Exception as e:
+        print(f"❌ Follow-up call error: {str(e)}")
 
 @app.post("/simulation/reset")
 async def reset_simulation():

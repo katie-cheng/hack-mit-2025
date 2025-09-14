@@ -185,19 +185,20 @@ class AgentOrchestrator:
             print("⏳ Waiting before sending resolution calls...")
             await asyncio.sleep(10)
             
-            # Send resolution calls after simulation
+            # Resolution calls are now handled by webhook - don't make them here
             resolution_results = []
-            profit = pipeline_result.get('home_state', {}).get('profit_generated', 4.15) if pipeline_result.get('home_state') else 4.15
+            print("📞 Resolution calls will be handled by webhook when first call ends")
+            # profit = pipeline_result.get('home_state', {}).get('profit_generated', 4.15) if pipeline_result.get('home_state') else 4.15
             
-            for phone_number, homeowner in self.registered_homeowners.items():
-                print(f"📞 Sending resolution call to {homeowner.name} ({phone_number})")
-                result = self.agentverse_voice_service.send_resolution_call(phone_number, profit)
-                resolution_results.append({
-                    "homeowner": homeowner.name,
-                    "phone_number": phone_number,
-                    "success": result.success,
-                    "call_id": result.call_id
-                })
+            # for phone_number, homeowner in self.registered_homeowners.items():
+            #     print(f"📞 Sending resolution call to {homeowner.name} ({phone_number})")
+            #     result = self.agentverse_voice_service.send_resolution_call(phone_number, profit)
+            #     resolution_results.append({
+            #         "homeowner": homeowner.name,
+            #         "phone_number": phone_number,
+            #         "success": result.success,
+            #         "call_id": result.call_id
+            #     })
             
             return {
                 "success": True,
@@ -617,17 +618,18 @@ Example: "register homeowner John +1234567890"
                 print("⏳ Waiting before sending resolution calls...")
                 await asyncio.sleep(10)
                 
-                # Send resolution calls to all registered homeowners
-                for phone_number, homeowner in self.registered_homeowners.items():
-                    print(f"📞 Sending resolution call to {homeowner.name} ({phone_number})")
-                    call_result = await self.voice_service.send_resolution_call(phone_number, home_result.home_state)
-                    resolution_calls.append({
-                        "homeowner": homeowner.name,
-                        "phone_number": phone_number,
-                        "success": call_result.get("success", False),
-                        "call_id": call_result.get("call_id"),
-                        "message": call_result.get("message")
-                    })
+                # Resolution calls are now handled by webhook - don't make them here
+                print("📞 Resolution calls will be handled by webhook when first call ends")
+                # for phone_number, homeowner in self.registered_homeowners.items():
+                #     print(f"📞 Sending resolution call to {homeowner.name} ({phone_number})")
+                #     call_result = await self.voice_service.send_resolution_call(phone_number, home_result.home_state)
+                #     resolution_calls.append({
+                #         "homeowner": homeowner.name,
+                #         "phone_number": phone_number,
+                #         "success": call_result.get("success", False),
+                #         "call_id": call_result.get("call_id"),
+                #         "message": call_result.get("message")
+                #     })
             
             processing_time = (time.time() - start_time) * 1000
             

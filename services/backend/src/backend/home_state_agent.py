@@ -960,3 +960,10 @@ def create_energy_sale_action(energy_kwh: float, rate_usd_per_kwh: float = 0.83)
             "rate_usd_per_kwh": rate_usd_per_kwh
         }
     )
+
+# Update forward references for Pydantic models
+HomeStateTool.update_forward_refs()
+ThermostatTool.update_forward_refs()
+BatteryTool.update_forward_refs()
+GridTool.update_forward_refs()
+SolarTool.update_forward_refs()
