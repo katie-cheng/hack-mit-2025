@@ -33,6 +33,15 @@ interface ThreatLevel {
   color: string;
 }
 
+interface ThreatAnalysis {
+  overall_threat_level: string;
+  threat_types: string[];
+  primary_concerns: string[];
+  recommended_actions: string[];
+  confidence_score: number;
+  analysis_summary: string;
+}
+
 export default function WeatherDashboard() {
   const [weatherData, setWeatherData] = useState<WeatherData>({
     temperature: 98,
@@ -40,6 +49,62 @@ export default function WeatherDashboard() {
     nextPeak: 102,
     nwsWarning: 'Heat Advisory'
   });
+
+  const [threatAnalysis, setThreatAnalysis] = useState<ThreatAnalysis>({
+    overall_threat_level: 'LOW',
+    threat_types: [],
+    primary_concerns: [],
+    recommended_actions: [],
+    confidence_score: 0.85,
+    analysis_summary: 'No immediate threats detected'
+  });
+
+  // Fetch real weather data from backend
+  const fetchWeatherData = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/weather/dashboard?location=Austin, TX');
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setWeatherData({
+          temperature: result.data.temperature,
+          heatIndex: result.data.heatIndex,
+          nextPeak: result.data.nextPeak,
+          nwsWarning: result.data.nwsWarning
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch weather data:', error);
+      // Keep existing mock data on error
+    }
+  };
+
+  // Fetch threat analysis data from backend
+  const fetchThreatAnalysis = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/threat-assessment/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          location: 'Austin, TX',
+          include_weather: true,
+          include_grid: true,
+          include_research: false,
+          request_id: `weather-dashboard-${Date.now()}`
+        })
+      });
+      const result = await response.json();
+      
+      if (result.success && result.analysis) {
+        setThreatAnalysis(result.analysis);
+      }
+    } catch (error) {
+      console.error('Failed to fetch threat analysis:', error);
+      // Keep using default threat data on error
+    }
+  };
 
   const [gridData, setGridData] = useState<GridData>({
     demand: 73420,
@@ -78,25 +143,41 @@ export default function WeatherDashboard() {
     color: 'text-yellow-400'
   });
 
-  // Simulate streaming data
+  // Fetch real weather data on component mount and set up periodic updates
   useEffect(() => {
+    // Fetch initial data
+    fetchWeatherData();
+    fetchThreatAnalysis();
+    
+    // Set up periodic refresh every 30 seconds
     const interval = setInterval(() => {
+      fetchWeatherData();
+      fetchThreatAnalysis();
+    }, 30000);
+
+    // Simulate streaming updates for grid data
+    const weatherInterval = setInterval(() => {
       setWeatherData(prev => ({
         ...prev,
-        temperature: Math.max(95, Math.min(110, prev.temperature + (Math.random() - 0.5) * 2)),
-        heatIndex: Math.max(100, Math.min(120, prev.heatIndex + (Math.random() - 0.5) * 3)),
-        nextPeak: Math.max(98, Math.min(108, prev.nextPeak + (Math.random() - 0.5) * 1.5)),
+        temperature: Math.max(85, Math.min(115, prev.temperature + (Math.random() - 0.5) * 2)),
+        heatIndex: Math.max(90, Math.min(125, prev.heatIndex + (Math.random() - 0.5) * 3)),
       }));
+    }, 2000);
 
+    const gridInterval = setInterval(() => {
       setGridData(prev => ({
         ...prev,
-        demand: Math.max(65000, Math.min(80000, prev.demand + (Math.random() - 0.5) * 500)),
+        demand: Math.max(60000, Math.min(85000, prev.demand + (Math.random() - 0.5) * 1000)),
         reserveMargin: Math.max(2000, Math.min(5000, prev.reserveMargin + (Math.random() - 0.5) * 200)),
         price: Math.max(50, Math.min(300, prev.price + (Math.random() - 0.5) * 20)),
       }));
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearInterval(weatherInterval);
+      clearInterval(gridInterval);
+    };
   }, []);
 
   // Calculate threat level
@@ -319,6 +400,48 @@ export default function WeatherDashboard() {
                   }} />
                 </div>
               </div>
+            </Card>
+          </div>
+
+          {/* Threat Analysis */}
+          <div className="space-y-6">
+            <Card variant="paper" className="border-l-4 border-l-orange-400">
+              <div className="flex items-center gap-3 mb-4">
+                <AlertTriangle className="h-6 w-6 text-orange-400" />
+                <h2 className="text-xl font-semibold text-heading text-text-primary">
+                  Threat Analysis
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-text-muted mb-1">Overall Threat Level</div>
+                  <div className={`text-lg font-bold ${
+                    threatAnalysis.overall_threat_level === 'LOW' ? 'text-green-400' :
+                    threatAnalysis.overall_threat_level === 'MODERATE' ? 'text-yellow-400' :
+                    threatAnalysis.overall_threat_level === 'HIGH' ? 'text-orange-400' :
+                    'text-red-400'
+                  }`}>
+                    {threatAnalysis.overall_threat_level}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-text-muted mb-1">Threat Types</div>
+                  <div className="text-sm text-text-primary">
+                    {threatAnalysis.threat_types.length > 0 
+                      ? threatAnalysis.threat_types.join(', ')
+                      : 'None detected'
+                    }
+                  </div>
+                </div>
+              </div>
+              {threatAnalysis.analysis_summary && (
+                <div className="mt-4 pt-4 border-t border-silver-700">
+                  <div className="text-sm text-text-muted mb-1">Analysis Summary</div>
+                  <div className="text-sm text-text-primary">
+                    {threatAnalysis.analysis_summary}
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
 

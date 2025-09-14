@@ -19,6 +19,7 @@ from .smart_home_simulator import SmartHomeSimulator
 from .home_state_api import router as home_state_router
 from .threat_assessment_api import router as threat_assessment_router
 from .integration_api import router as integration_router
+from .weather_api import router as weather_router
 
 # Load environment variables from multiple locations
 load_dotenv()  # Load from backend/.env
@@ -262,3 +263,4 @@ async def reset_simulation():
 app.include_router(home_state_router)
 app.include_router(threat_assessment_router)
 app.include_router(integration_router)
+app.include_router(weather_router)
